@@ -1,32 +1,11 @@
+require('dotenv').config()
+require('./mongo')
+
 const express = require('express')
+const handleErrors = require('./middleware/handleErrors')
+const notFound = require('./middleware/notFound')
 const app = express()
-let notes = [
-  {
-    id: 1,
-    content: 'Soy una nota bebe',
-    date: 'Hoy, creo',
-    important: true
-  },
-  {
-    id: 2,
-    content: 'Soy una nota bebe',
-    date: 'Hoy, creo',
-    important: false
-  },
-  {
-    id: 3,
-    content: 'Soy una nota bebe',
-    date: 'Hoy, creo',
-    important: true
-  }
-]
-
-// const http = require('http')
-
-// const app = http.createServer((req, res) => {
-//   res.writeHead(200, { 'Content-Type': 'application/json' })
-//   res.end(JSON.stringify(notes))
-// })
+const Note = require('./models/Note')
 
 app.use(express.json())
 
@@ -35,42 +14,72 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/notes', (req, res) => {
-  res.json(notes)
+  Note.find({}).then((notes) => {
+    res.json(notes)
+  })
 })
 
-app.get('/api/note/:id', (req, res) => {
+app.get('/api/note/:id', (req, res, next) => {
   let { id } = req.params
-  const note = notes.find((note) => note.id === Number(id))
 
-  res.json(note)
+  Note.findById(id)
+    .then((note) => {
+      note ? res.json(note) : res.status(404).end()
+    })
+    .catch((err) => {
+      next(err)
+    })
 })
 
-app.delete('/api/note/:id', (req, res) => {
-  let { id } = req.params
-  notes.find((note) => note.id !== Number(id))
+app.put('/api/note/:id', (req, res, next) => {
+  const { id } = req.params
+  const note = req.body
 
-  res.status(204).end()
+  const newNoteInfo = {
+    content: note.content,
+    date: note.date,
+    important: note.important
+  }
+
+  Note.findByIdAndUpdate(id, newNoteInfo, { new: true })
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((error) => {
+      next(error)
+    })
+})
+
+app.delete('/api/note/:id', (req, res, next) => {
+  let { id } = req.params
+
+  Note.findByIdAndDelete(id)
+    .then((note) => {
+      res.status(204).json(note)
+    })
+    .catch((error) => {
+      next(error)
+    })
 })
 
 app.post('/api/notes', (req, res) => {
   const note = req.body
 
-  const ids = notes.map((note) => note.id)
-  const maxId = Math.max(...ids)
-
-  const newNote = {
-    id: maxId + 1,
+  const newNote = new Note({
     content: note.content,
-    important: typeof note.important !== 'undefined' ? note.important : false,
-    date: new Date().toISOString
-  }
+    date: new Date(),
+    important: note.important || false
+  })
 
-  notes = [...notes, newNote]
-
-  res.json(newNote)
+  newNote.save().then((savedNote) => {
+    res.json(savedNote)
+  })
 })
 
-const PORT = 3001
+app.use(notFound)
+app.use(handleErrors)
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log('Server running on port', PORT)
 })
