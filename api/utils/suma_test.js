@@ -17,4 +17,4 @@ checks.forEach((check) => {
   )
 })
 
-console.log(`${checks.length} checks perfomed...`)
+console.log(`${checks.length} checks performed...`)

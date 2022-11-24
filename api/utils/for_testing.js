@@ -3,6 +3,8 @@ const palindrome = (str) => {
 }
 
 const average = (array) => {
+  if (array.length === 0) return 0
+
   let suma = 0
 
   array.forEach((num) => {
