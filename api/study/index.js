@@ -6,6 +6,7 @@ const logger = require('./logger')
 const cors = require('cors')
 const notFound = require('./middlewares/notFound')
 const handleError = require('./middlewares/handleError')
+const loginRouter = require('./controllers/login')
 const usersRouter = require('./controllers/users')
 const notesRouter = require('./controllers/notes')
 
@@ -15,6 +16,7 @@ app.use(logger)
 app.use(cors())
 
 // Routes
+app.use('/api/login', loginRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/notes', notesRouter)
 
