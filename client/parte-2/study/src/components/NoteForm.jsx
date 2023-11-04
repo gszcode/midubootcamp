@@ -1,32 +1,42 @@
-import { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import Togglable from './Togglable'
 
-const NoteForm = ({ createNote }) => {
+export default function NoteForm({ addNote, handleLogout }) {
   const [newNote, setNewNote] = useState('')
+  const togglableRef = useRef()
 
   const handleChange = (event) => {
     setNewNote(event.target.value)
   }
 
-  const addNote = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault()
-    createNote({
-      content: newNote,
-      important: Math.random() > 0.5
-    })
 
+    const noteObject = {
+      content: newNote,
+      important: false
+    }
+
+    addNote(noteObject)
     setNewNote('')
+    togglableRef.current.toggleVisibility()
   }
 
   return (
-    <div>
-      <h2>Create a new note</h2>
+    <Togglable buttonLabel="Show Create Note" ref={togglableRef}>
+      <h3>Create a new note</h3>
 
-      <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleChange} />
+      <form onSubmit={handleSubmit}>
+        <input
+          placeholder="Write your note content"
+          value={newNote}
+          onChange={handleChange}
+        />
         <button type="submit">save</button>
       </form>
-    </div>
+      <div>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
+    </Togglable>
   )
 }
-
-export default NoteForm

@@ -1,41 +1,36 @@
+import React from 'react'
+import Togglable from './Togglable'
 import PropTypes from 'prop-types'
 
-const LoginForm = ({
-  handleSubmit,
-  handleUsernameChange,
-  handlePasswordChange,
-  username,
-  password
-}) => {
+export default function LoginForm({ handleSubmit, ...props }) {
   return (
-    <div>
-      <h2>Login</h2>
-
+    <Togglable buttonLabel="Show Login">
       <form onSubmit={handleSubmit}>
         <div>
-          username
-          <input value={username} onChange={handleUsernameChange} />
-        </div>
-        <div>
-          password
           <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
+            type="text"
+            value={props.username}
+            name="Username"
+            placeholder="Username"
+            onChange={props.handleUsernameChange}
           />
         </div>
-        <button type="submit">login</button>
+        <div>
+          <input
+            type="password"
+            value={props.password}
+            name="Password"
+            placeholder="Password"
+            onChange={props.handlePasswordChange}
+          />
+        </div>
+        <button id="form-login-button">Login</button>
       </form>
-    </div>
+    </Togglable>
   )
 }
 
 LoginForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  handleUsernameChange: PropTypes.func.isRequired,
-  handlePasswordChange: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired
+  username: PropTypes.string
 }
-
-export default LoginForm
